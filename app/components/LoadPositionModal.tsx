@@ -30,9 +30,9 @@ const LoadPositionModal: React.FC<Props> = ({
         <button onClick={toggleModal} className="absolute top-2 right-2">
           <IoClose className="text-3xl text-gray-300" />
         </button>
-        <h1 className="absolute top-3 right-1/2 translate-x-1/2 text-white font-medium uppercase">
+        <h2 className="absolute top-3 right-1/2 translate-x-1/2 text-white font-medium uppercase">
           Load Position
-        </h1>
+        </h2>
         <form className="flex flex-col gap-3 items-center">
           <label htmlFor="fen" className="text-white">
             Type FEN

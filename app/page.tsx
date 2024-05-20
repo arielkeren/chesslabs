@@ -8,6 +8,7 @@ import { EngineResponse, Move, State } from "./types";
 import Evaluation from "./components/Evaluation";
 import Options from "./components/Options";
 import { move, replaceSquare } from "./utils";
+import Header from "./components/Header";
 
 const Board: React.FC = () => {
   const [position, setPosition] = useState(new Chess().fen());
@@ -157,33 +158,36 @@ const Board: React.FC = () => {
   const switchToEdit = () => setState("edit");
 
   return (
-    <div className="flex gap-2 p-3">
-      <Evaluation position={position} isFlipped={!isPlayingWhite} />
-      <div style={{ width: Math.min(height, width) * 0.7 }}>
-        <Chessboard
-          position={position}
-          onPieceDrop={onPieceDrop}
-          boardOrientation={isPlayingWhite ? "white" : "black"}
-          boardWidth={Math.min(height, width) * 0.7}
-          customBoardStyle={{ borderRadius: "4px" }}
-          promotionDialogVariant="vertical"
-          onSquareRightClick={onSquareRightClick}
-          animationDuration={state === "edit" ? 0 : 300}
+    <div className="flex flex-col items-center">
+      <Header />
+      <div className="flex gap-2">
+        <Evaluation position={position} isFlipped={!isPlayingWhite} />
+        <div style={{ width: Math.min(height, width) * 0.7 }}>
+          <Chessboard
+            position={position}
+            onPieceDrop={onPieceDrop}
+            boardOrientation={isPlayingWhite ? "white" : "black"}
+            boardWidth={Math.min(height, width) * 0.7}
+            customBoardStyle={{ borderRadius: "4px" }}
+            promotionDialogVariant="vertical"
+            onSquareRightClick={onSquareRightClick}
+            animationDuration={state === "edit" ? 0 : 300}
+          />
+        </div>
+        <Options
+          state={state}
+          isUndoDisabled={history.length === 0}
+          isPositionValid={validateFen(position).ok}
+          changePosition={changePosition}
+          reset={reset}
+          flip={flip}
+          undo={undo}
+          restoreUploadedPosition={restoreUploadedPosition}
+          switchToEngine={switchToEngine}
+          switchToPlay={switchToPlay}
+          switchToEdit={switchToEdit}
         />
       </div>
-      <Options
-        state={state}
-        isUndoDisabled={history.length === 0}
-        isPositionValid={validateFen(position).ok}
-        changePosition={changePosition}
-        reset={reset}
-        flip={flip}
-        undo={undo}
-        restoreUploadedPosition={restoreUploadedPosition}
-        switchToEngine={switchToEngine}
-        switchToPlay={switchToPlay}
-        switchToEdit={switchToEdit}
-      />
     </div>
   );
 };
