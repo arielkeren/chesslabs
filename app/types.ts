@@ -9,7 +9,7 @@ export type Move =
 export type EngineResponse = {
   success: boolean;
   evaluation: number;
-  mate: number;
+  mate: number | null;
   bestmove: string;
   continuation: string;
 };

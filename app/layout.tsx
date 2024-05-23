@@ -8,7 +8,7 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Chess",
+  title: "ChessLabs",
   description: "Analyze chess games",
 };
 

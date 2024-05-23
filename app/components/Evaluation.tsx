@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
 import { EngineResponse } from "../types";
 import useWindowDimensions from "../hooks/useWindowDimensions";
 import { Chess } from "chess.js";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 
 type Props = {
   position: string;
@@ -9,65 +9,45 @@ type Props = {
 };
 
 const Evaluation: React.FC<Props> = ({ position, isFlipped }) => {
-  const [evaluation, setEvaluation] = useState(0);
-  const [mate, setMate] = useState(0);
   const { height, width } = useWindowDimensions();
 
-  useEffect(() => {
-    const fetchEvaluation = async () => {
-      if (position == new Chess().fen()) {
-        setEvaluation(0);
-        setMate(0);
-        return;
-      }
+  const { data } = useQuery({
+    queryKey: ["evaluation", position],
+    placeholderData: keepPreviousData,
+    queryFn: () => {
+      if (position === new Chess().fen()) return { evaluation: 0, mate: null };
 
-      const response = await fetch(
+      return fetch(
         `https://stockfish.online/api/s/v2.php?fen=${position}&depth=15`
-      );
-
-      if (!response.ok) {
-        return;
-      }
-
-      let data: EngineResponse | null = null;
-      try {
-        data = (await response.json()) as EngineResponse;
-      } catch {
-        return;
-      }
-
-      if ("evaluation" in data && typeof data.evaluation == "number")
-        setEvaluation(data.evaluation);
-
-      if ("mate" in data && (typeof data.mate == "number" || data.mate == null))
-        setMate(data.mate ? data.mate : 0);
-    };
-
-    fetchEvaluation();
-  }, [position]);
+      )
+        .then(response => response.json())
+        .then((data: EngineResponse) => ({
+          evaluation: data.evaluation,
+          mate: data.mate,
+        }));
+    },
+  });
 
   const scaleAdvantage = () => {
-    if (mate) {
-      return Math.min(height, width) * 0.7;
-    }
+    if (!data) return (Math.min(height, width) * 0.7) / 2;
+
+    if (data.mate) return Math.min(height, width) * 0.7;
 
     return (
       ((Math.min(height, width) * 0.7) / 2) *
-      Math.log10(Math.abs(evaluation) + 10)
+      Math.log10(Math.abs(data.evaluation) + 10)
     );
   };
 
-  const scaleDisadvantage = () => {
-    return Math.min(height, width) * 0.7 - scaleAdvantage();
-  };
+  const scaleDisadvantage = () =>
+    Math.min(height, width) * 0.7 - scaleAdvantage();
 
-  const isBlackWinning = () => {
-    return mate < 0 || (mate == 0 && evaluation < 0);
-  };
+  const isBlackWinning = () =>
+    !data || (data.mate && data.mate < 0) || data.evaluation < 0;
 
-  const isWhiteWinning = () => {
-    return !isBlackWinning();
-  };
+  const isWhiteWinning = () => !isBlackWinning();
+
+  if (!data) return <></>;
 
   if (isFlipped)
     return (
@@ -80,7 +60,7 @@ const Evaluation: React.FC<Props> = ({ position, isFlipped }) => {
             isBlackWinning() ? "bottom-1 text-white" : "top-1 text-gray-800"
           }`}
         >
-          {mate == 0 ? evaluation.toFixed(2) : `M${Math.abs(mate)}`}
+          {data.mate ? `M${Math.abs(data.mate)}` : data.evaluation.toFixed(2)}
         </p>
         <div
           className="bg-white rounded-t transition-all ease-out duration-1000"
@@ -107,7 +87,7 @@ const Evaluation: React.FC<Props> = ({ position, isFlipped }) => {
           isBlackWinning() ? "top-1 text-white" : "bottom-1 text-gray-800"
         }`}
       >
-        {mate == 0 ? evaluation.toFixed(2) : `M${Math.abs(mate)}`}
+        {data.mate ? `M${Math.abs(data.mate)}` : data.evaluation.toFixed(2)}
       </p>
       <div
         className="bg-gray-800 rounded-t transition-all ease-out duration-1000"

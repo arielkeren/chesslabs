@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.37.1",
     "@types/chess.js": "^0.13.7",
     "chess.js": "^1.0.0-beta.8",
     "next": "14.0.4",
