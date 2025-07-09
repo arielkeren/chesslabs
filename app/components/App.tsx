@@ -43,7 +43,7 @@ const App: React.FC = () => {
       const data = (await response.json()) as EngineResponse;
       const bestMove = data.bestmove.substring(9, 13);
       makeMove(fen, bestMove);
-    } catch (error) {
+    } catch {
       alert("Failed to fetch engine move. Please try again later.");
     }
   };

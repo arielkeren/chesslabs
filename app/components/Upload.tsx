@@ -10,19 +10,24 @@ const Upload: React.FC<Props> = ({ toggleModal, changePosition }) => {
     event.preventDefault();
     if (!event.target.files) return;
 
-    const response = await fetch("http://127.0.0.1:8000/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-      body: event.target.files[0],
-    });
+    try {
+      const response = await fetch("http://127.0.0.1:8000/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        body: event.target.files[0],
+      });
 
-    const data = await response.json();
-    const fen = boardToFen(data.board, "w");
+      const data = await response.json();
+      const fen = boardToFen(data.board, "w");
 
-    toggleModal();
-    changePosition(fen);
+      toggleModal();
+      changePosition(fen);
+    } catch {
+      toggleModal();
+      alert("Failed to upload image. Please try again later.");
+    }
   };
 
   return (
