@@ -33,15 +33,19 @@ const App: React.FC = () => {
   const makeEngineMove = async (fen: string) => {
     if (new Chess(fen).isGameOver()) return;
 
-    const response = await fetch(
-      `https://stockfish.online/api/s/v2.php?fen=${fen}&depth=15`
-    );
+    try {
+      const response = await fetch(
+        `https://stockfish.online/api/s/v2.php?fen=${fen}&depth=15`
+      );
 
-    if (!response.ok) return;
+      if (!response.ok) return;
 
-    const data = (await response.json()) as EngineResponse;
-    const bestMove = data.bestmove.substring(9, 13);
-    makeMove(fen, bestMove);
+      const data = (await response.json()) as EngineResponse;
+      const bestMove = data.bestmove.substring(9, 13);
+      makeMove(fen, bestMove);
+    } catch (error) {
+      alert("Failed to fetch engine move. Please try again later.");
+    }
   };
 
   const onPieceDropEdit = (sourceSquare: string, targetSquare: string) => {
