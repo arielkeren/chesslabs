@@ -2,6 +2,8 @@
 
 A modern, feature-rich chess application built with Next.js, TypeScript, React, and Python. ChessLabs provides an interactive chess environment with multiple game modes, position analysis, AI-powered gameplay, and intelligent chess board image recognition.
 
+![ChessLabs](https://github.com/user-attachments/assets/57ea5d69-dd40-4b92-839f-3351846926c3)
+
 ## 🚀 Features
 
 ### 🎮 Multiple Game Modes
