@@ -25,10 +25,10 @@ const LoadPositionModal: React.FC<Props> = ({
   };
 
   return (
-    <div className="fixed h-screen w-screen flex justify-center items-center backdrop-brightness-75">
+    <div className="fixed top-0 left-0 h-screen w-screen flex justify-center items-center backdrop-brightness-50">
       <div className="relative bg-gray-900 rounded p-16">
         <button onClick={toggleModal} className="absolute top-2 right-2">
-          <IoClose className="text-3xl text-gray-300" />
+          <IoClose className="text-3xl text-gray-300 hover:text-gray-400 transition-colors" />
         </button>
         <h2 className="absolute top-3 right-1/2 translate-x-1/2 text-white font-medium uppercase">
           Load Position
