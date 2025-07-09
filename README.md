@@ -1,6 +1,6 @@
 # ChessLabs
 
-A modern, feature-rich chess application built with Next.js, TypeScript, and React. ChessLabs provides an interactive chess environment with multiple game modes, position analysis, and AI-powered gameplay.
+A modern, feature-rich chess application built with Next.js, TypeScript, React, and Python. ChessLabs provides an interactive chess environment with multiple game modes, position analysis, AI-powered gameplay, and intelligent chess board image recognition.
 
 ## 🚀 Features
 
@@ -27,7 +27,7 @@ A modern, feature-rich chess application built with Next.js, TypeScript, and Rea
 ### 🎯 Position Management
 
 - **FEN Import/Export**: Load positions using standard FEN notation
-- **Image Upload**: Upload chess board images for position recognition (requires local server)
+- **Image Upload**: Upload chess board images for position recognition (powered by Python backend)
 - **Position History**: Undo moves with full history tracking
 - **Reset to Start**: Quick return to initial position
 - **Restore Positions**: Return to previously uploaded positions
@@ -50,6 +50,8 @@ A modern, feature-rich chess application built with Next.js, TypeScript, and Rea
 
 ## 🛠️ Technology Stack
 
+### Frontend
+
 - **Framework**: Next.js 14
 - **Language**: TypeScript
 - **Chess Logic**: chess.js
@@ -59,13 +61,53 @@ A modern, feature-rich chess application built with Next.js, TypeScript, and Rea
 - **Icons**: React Icons
 - **Chess Engine**: Stockfish.online API
 
+### Backend
+
+- **Framework**: FastAPI
+- **Language**: Python
+- **Image Processing**: PIL (Pillow), scikit-image
+- **Machine Learning**: TensorFlow Keras, NumPy, scikit-learn (joblib)
+- **Neural Networks**: Two custom CNN models for chess piece recognition
+- **Server**: Uvicorn
+
+## 📁 Project Structure
+
+```
+chesslabs/
+├── README.md
+├── frontend/                    # Next.js React application
+│   ├── app/
+│   │   ├── components/         # React components
+│   │   ├── hooks/             # Custom React hooks
+│   │   ├── globals.css        # Global styles
+│   │   ├── layout.tsx         # App layout
+│   │   ├── page.tsx          # Main page
+│   │   ├── types.ts          # TypeScript types
+│   │   └── utils.ts          # Utility functions
+│   ├── package.json
+│   ├── next.config.js
+│   ├── tailwind.config.ts
+│   └── tsconfig.json
+└── backend/                    # Python FastAPI server
+    ├── main.py               # FastAPI application
+    ├── piece.pkl            # ML model for piece recognition
+    └── color.pkl            # ML model for color detection
+```
+
 ## 📦 Installation
 
-1. **Clone the repository**
+### Prerequisites
+
+- Node.js (for frontend)
+- Python 3.8+ (for backend)
+
+### Frontend Setup
+
+1. **Navigate to the frontend directory**
 
    ```bash
-   git clone <repository-url>
-   cd chess
+   git clone https://github.com/arielkeren/chesslabs.git
+   cd frontend
    ```
 
 2. **Install dependencies**
@@ -80,8 +122,39 @@ A modern, feature-rich chess application built with Next.js, TypeScript, and Rea
    npm run dev
    ```
 
-4. **Open your browser**
-   <br>Navigate to `http://localhost:3000`
+### Backend Setup
+
+1. **Navigate to the backend directory**
+
+   ```bash
+   git clone https://github.com/arielkeren/chesslabs.git
+   cd backend
+   ```
+
+2. **Create a virtual environment (recommended)**
+
+   ```bash
+   python -m venv venv
+   venv\Scripts\activate  # On Windows
+   # source venv/bin/activate  # On macOS/Linux
+   ```
+
+3. **Install Python dependencies**
+
+   ```bash
+   pip install fastapi uvicorn pillow scikit-image scikit-learn numpy joblib tensorflow
+   ```
+
+4. **Run the backend server**
+
+   ```bash
+   python main.py
+   ```
+
+### Access the Application
+
+- **Frontend**: Navigate to `http://localhost:3000`
+- **Backend API**: Available at `http://localhost:8000`
 
 ## 🎯 Usage Guide
 
@@ -95,7 +168,7 @@ A modern, feature-rich chess application built with Next.js, TypeScript, and Rea
 
 1. Click the upload button (📤) in the controls
 2. **Option 1**: Type or paste a FEN string
-3. **Option 2**: Upload a chess board image (requires local image processing server)
+3. **Option 2**: Upload a chess board image (requires Python backend to be running)
 
 ### Game Controls
 
@@ -121,7 +194,7 @@ A modern, feature-rich chess application built with Next.js, TypeScript, and Rea
 The app uses Stockfish.online with a depth of 15. To modify:
 
 ```typescript
-// In App.tsx, change the depth parameter
+// In frontend/app/components/App.tsx, change the depth parameter
 const response = await fetch(
   `https://stockfish.online/api/s/v2.php?fen=${fen}&depth=15`
 );
@@ -141,10 +214,36 @@ Customize the board in the `Chessboard` component:
 
 ## 🖼️ Image Upload Feature
 
-The image upload feature requires a local server for chess position recognition:
+The image upload feature uses a Python backend with machine learning models for chess position recognition:
 
-1. **Start the image processing server** (port 8000)
-2. **Upload a chess board image** through the modal
-3. **The app converts the image to FEN** and loads the position
+### How it works:
 
-Expected server endpoint: `POST http://127.0.0.1:8000/`
+1. **Image Processing**: The Python backend processes uploaded chess board images using PIL and scikit-image
+2. **CNN Architecture**: Two separate Convolutional Neural Networks built with TensorFlow Keras:
+   - **Piece Recognition CNN**: Identifies the type of chess piece (king, queen, rook, bishop, knight, pawn)
+   - **Color Recognition CNN**: Determines the color of each piece (white or black)
+3. **Position Recognition**: The backend converts the image to a board representation and returns it as FEN
+4. **Frontend Integration**: The Next.js frontend sends images to the backend and loads the recognized positions
+
+### Backend Features:
+
+- **FastAPI Server**: RESTful API for image processing
+- **CORS Support**: Enables cross-origin requests from the frontend
+- **Image Analysis**: Grayscale conversion, compression, and square-by-square piece recognition
+- **Deep Learning Models**: Two custom CNN networks built with TensorFlow Keras:
+  - `piece.pkl`: Trained to classify chess piece types (6 classes: king, queen, rook, bishop, knight, pawn)
+  - `color.pkl`: Trained to classify piece colors (2 classes: white, black)
+- **Board Parsing**: Converts 8x8 board array to standard chess notation
+
+### Usage:
+
+1. **Ensure the Python backend is running** (port 8000)
+2. **Upload a chess board image** through the frontend modal
+3. **The backend processes the image** and returns the position as FEN
+4. **The frontend loads the recognized position** onto the board
+
+### Backend API Endpoint:
+
+- **URL**: `POST http://127.0.0.1:8000/`
+- **Input**: Image file as binary data
+- **Output**: JSON response with board position array
